@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📦 Glos Commercial</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f2f5; color: #1a1a2e; }
+
+  header { background: #1a1a2e; color: white; display: flex; flex-direction: column; }
+  .header-bar { padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; }
+  header h1 { font-size: 1.4rem; font-weight: 700; letter-spacing: -0.02em; }
+  header span { font-size: 0.82rem; opacity: 0.5; }
+
+  .filters { background: white; padding: 14px 24px; border-bottom: 1px solid #e0e0e0; display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; }
+  .filter-group { display: flex; flex-direction: column; gap: 4px; }
+  .filter-group label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em; color: #999; font-weight: 700; }
+  .filter-group select, .filter-group input { padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.83rem; background: white; min-width: 120px; }
+  .filter-group input[type=range] { min-width: 150px; accent-color: #1a1a2e; }
+  .price-display { font-size: 0.76rem; color: #666; margin-top: 2px; }
+  .reset-btn { padding: 7px 14px; background: #1a1a2e; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.83rem; align-self: flex-end; }
+  .reset-btn:hover { background: #2d2d4e; }
+
+  .stats-bar { padding: 8px 24px; background: #f0f2f5; font-size: 0.8rem; color: #777; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; padding: 20px 24px; }
+
+  .card { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.07); transition: box-shadow 0.2s, transform 0.1s; cursor: pointer; }
+  .card:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.12); transform: translateY(-1px); }
+
+  .card-img { width: 100%; height: 190px; object-fit: cover; display: block; background: #eee; }
+  .card-img-placeholder { width: 100%; height: 140px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; }
+  .placeholder-office { background: linear-gradient(135deg, #e8eaf6, #c5cae9); }
+  .placeholder-industrial { background: linear-gradient(135deg, #e8f5e9, #c8e6c9); }
+  .placeholder-retail { background: linear-gradient(135deg, #fff3e0, #ffe0b2); }
+  .placeholder-land { background: linear-gradient(135deg, #f3e5f5, #e1bee7); }
+  .placeholder-other { background: linear-gradient(135deg, #e3f2fd, #bbdefb); }
+
+  .card-header { padding: 12px 16px 8px; border-bottom: 1px solid #f5f5f5; }
+  .card-type-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+  .type-badge { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; padding: 2px 8px; border-radius: 10px; }
+  .type-office    { background: #e8eaf6; color: #3949ab; }
+  .type-industrial{ background: #e8f5e9; color: #2e7d32; }
+  .type-retail    { background: #fff3e0; color: #e65100; }
+  .type-land      { background: #f3e5f5; color: #7b1fa2; }
+  .type-warehouse { background: #e8f5e9; color: #1b5e20; }
+  .type-mixed     { background: #fce4ec; color: #880e4f; }
+  .type-other     { background: #e3f2fd; color: #1565c0; }
+  .tenure-badge { font-size: 0.68rem; padding: 2px 8px; border-radius: 10px; background: #f5f5f5; color: #555; font-weight: 600; }
+  .tenure-sale { background: #1a1a2e; color: white; }
+  .tenure-lease { background: #e3f2fd; color: #1565c0; }
+
+  .card-address { font-weight: 600; font-size: 0.92rem; line-height: 1.3; }
+  .card-location { font-size: 0.78rem; color: #888; margin-top: 2px; }
+  .card-price { font-size: 1.15rem; font-weight: 800; color: #1a1a2e; margin-top: 6px; }
+  .price-qualifier { font-size: 0.72rem; color: #888; font-weight: 400; margin-left: 4px; }
+
+  .card-body { padding: 10px 16px; display: flex; flex-direction: column; gap: 7px; }
+  .specs { display: flex; gap: 14px; flex-wrap: wrap; }
+  .spec { font-size: 0.78rem; color: #666; }
+  .spec strong { color: #1a1a2e; }
+
+  .desc { font-size: 0.78rem; color: #666; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+  .tags { display: flex; gap: 5px; flex-wrap: wrap; }
+  .tag { font-size: 0.68rem; padding: 2px 7px; border-radius: 10px; font-weight: 500; background: #f0f0f0; color: #555; }
+  .tag-highlight { background: #e8f5e9; color: #2e7d32; }
+
+  .card-footer { padding: 8px 16px; border-top: 1px solid #f5f5f5; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px; }
+  .status-badge { font-size: 0.68rem; padding: 3px 9px; border-radius: 10px; font-weight: 700; }
+  .status-new       { background: #e3f2fd; color: #1565c0; }
+  .status-enquiry   { background: #fff8e1; color: #b8860b; }
+  .status-viewing   { background: #f3e5f5; color: #7b1fa2; }
+  .status-interested{ background: #e8f5e9; color: #2e7d32; }
+  .status-offer     { background: #fce4ec; color: #c62828; }
+  .status-rejected  { background: #eeeeee; color: #757575; }
+  .rating { color: #f5a623; font-size: 0.85rem; }
+  .links { display: flex; gap: 6px; }
+  .links a { font-size: 0.68rem; color: #1a1a2e; text-decoration: none; padding: 2px 7px; border: 1px solid #ddd; border-radius: 4px; }
+  .links a:hover { background: #f0f0f0; }
+
+  .add-btn { position: fixed; bottom: 24px; right: 24px; background: #1a1a2e; color: white; border: none; border-radius: 50%; width: 52px; height: 52px; font-size: 1.5rem; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; }
+  .add-btn:hover { background: #2d2d4e; }
+
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 100; justify-content: center; align-items: flex-start; padding: 20px; overflow-y: auto; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: white; border-radius: 12px; padding: 24px; width: 100%; max-width: 640px; margin: auto; }
+  .modal h2 { margin-bottom: 16px; font-size: 1.1rem; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; }
+  .form-group { display: flex; flex-direction: column; gap: 4px; }
+  .form-group.full { grid-column: 1 / -1; }
+  .form-group label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.05em; color: #999; font-weight: 700; }
+  .form-group input, .form-group select, .form-group textarea { padding: 7px 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.84rem; font-family: inherit; }
+  .form-group textarea { resize: vertical; min-height: 60px; }
+  .section-divider { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; color: #bbb; font-weight: 700; grid-column: 1/-1; margin-top: 6px; border-top: 1px solid #eee; padding-top: 8px; }
+  .modal-actions { display: flex; gap: 10px; margin-top: 16px; justify-content: flex-end; }
+  .btn-save   { padding: 8px 20px; background: #1a1a2e; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; }
+  .btn-cancel { padding: 8px 20px; background: #eee; color: #333; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; }
+  .btn-delete { padding: 8px 20px; background: #c0392b; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; margin-right: auto; }
+
+  .empty-state { grid-column: 1/-1; text-align: center; padding: 60px 20px; color: #bbb; }
+  .empty-state div { font-size: 3rem; margin-bottom: 10px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-bar">
+    <h1>📦 Glos Commercial</h1>
+    <span id="last-updated">0 properties</span>
+  </div>
+</header>
+
+<div class="filters">
+  <div class="filter-group">
+    <label>Type</label>
+    <select id="f-type">
+      <option value="">All Types</option>
+      <option value="Office">Office</option>
+      <option value="Industrial">Industrial</option>
+      <option value="Warehouse">Warehouse</option>
+      <option value="Retail">Retail</option>
+      <option value="Land">Land</option>
+      <option value="Mixed Use">Mixed Use</option>
+      <option value="Other">Other</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <label>Tenure</label>
+    <select id="f-tenure">
+      <option value="">Sale &amp; Lease</option>
+      <option value="For Sale">For Sale</option>
+      <option value="To Let">To Let</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <label>Area</label>
+    <select id="f-area">
+      <option value="">All Glos</option>
+      <option value="Cheltenham">Cheltenham</option>
+      <option value="Gloucester">Gloucester</option>
+      <option value="Stroud">Stroud</option>
+      <option value="Cirencester">Cirencester</option>
+      <option value="Tewkesbury">Tewkesbury</option>
+      <option value="Moreton-in-Marsh">Moreton-in-Marsh</option>
+      <option value="Stow-on-the-Wold">Stow-on-the-Wold</option>
+      <option value="Dursley">Dursley</option>
+      <option value="Lydney">Lydney</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <label>Min Size (sq ft)</label>
+    <select id="f-min-size">
+      <option value="0">Any</option>
+      <option value="500">500+</option>
+      <option value="1000">1,000+</option>
+      <option value="2500">2,500+</option>
+      <option value="5000">5,000+</option>
+      <option value="10000">10,000+</option>
+      <option value="25000">25,000+</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <label>Max Price / Rent</label>
+    <input type="range" id="f-price" min="0" max="5000000" step="50000" value="5000000">
+    <div class="price-display" id="price-display">Any price</div>
+  </div>
+  <div class="filter-group">
+    <label>Sort By</label>
+    <select id="f-sort">
+      <option value="default">Default</option>
+      <option value="price-asc">Price: Low → High</option>
+      <option value="price-desc">Price: High → Low</option>
+      <option value="size-desc">Largest First</option>
+      <option value="size-asc">Smallest First</option>
+      <option value="rating-desc">My Rating</option>
+      <option value="newest">Newest First</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <label>Status</label>
+    <select id="f-status">
+      <option value="">All</option>
+      <option value="New">New</option>
+      <option value="Enquiry Made">Enquiry Made</option>
+      <option value="Viewing Booked">Viewing Booked</option>
+      <option value="Interested">Interested</option>
+      <option value="Offer Made">Offer Made</option>
+      <option value="Rejected">Rejected</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <label>Min Rating</label>
+    <select id="f-rating">
+      <option value="0">Any</option>
+      <option value="3">3+ ⭐</option>
+      <option value="4">4+ ⭐</option>
+      <option value="5">5 ⭐</option>
+    </select>
+  </div>
+  <button class="reset-btn" onclick="resetFilters()">Reset</button>
+</div>
+
+<div class="stats-bar">
+  <span id="stats-text">Showing 0 properties</span>
+  <span id="breakdown-text" style="font-size:0.75rem;color:#aaa;"></span>
+</div>
+
+<div class="grid" id="grid"></div>
+<button class="add-btn" onclick="openModal()" title="Add property">+</button>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <h2 id="modal-title">Add Property</h2>
+    <div class="form-grid">
+      <div class="section-divider">📍 Property Details</div>
+      <div class="form-group full"><label>Address / Unit</label><input type="text" id="f-address" placeholder="Unit 4, Gloucester Business Park"></div>
+      <div class="form-group"><label>Town / Area</label><input type="text" id="f-town" placeholder="Gloucester"></div>
+      <div class="form-group"><label>Postcode</label><input type="text" id="f-postcode" placeholder="GL3 4AA"></div>
+      <div class="form-group"><label>Property Type</label>
+        <select id="f-prop-type">
+          <option>Office</option><option>Industrial</option><option>Warehouse</option>
+          <option>Retail</option><option>Land</option><option>Mixed Use</option><option>Other</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Tenure</label>
+        <select id="f-prop-tenure">
+          <option>For Sale</option><option>To Let</option><option>For Sale or To Let</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Price / Rent (£)</label><input type="number" id="f-asking-price" placeholder="e.g. 250000"></div>
+      <div class="form-group"><label>Price Qualifier</label>
+        <select id="f-price-qual">
+          <option value="">—</option>
+          <option>Asking Price</option><option>Guide Price</option>
+          <option>pa (per annum)</option><option>pcm (per month)</option>
+          <option>per sq ft pa</option><option>POA</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Size (sq ft)</label><input type="number" id="f-size-sqft" placeholder="e.g. 3500"></div>
+      <div class="form-group"><label>Size (sq m)</label><input type="number" id="f-size-sqm" placeholder="auto-calc"></div>
+      <div class="form-group"><label>Use Class</label>
+        <select id="f-use-class">
+          <option value="">—</option>
+          <option>E (Commercial)</option><option>B2 (General Industrial)</option>
+          <option>B8 (Storage/Distribution)</option><option>Sui Generis</option>
+          <option>C1 (Hotels)</option><option>F1 (Non-residential institutions)</option>
+          <option>Mixed</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Lease Term</label><input type="text" id="f-lease-term" placeholder="e.g. 10 years, new lease"></div>
+
+      <div class="section-divider">🏗️ Features</div>
+      <div class="form-group"><label>Parking Spaces</label><input type="number" id="f-parking" placeholder="e.g. 20"></div>
+      <div class="form-group"><label>Loading</label>
+        <select id="f-loading">
+          <option value="">Unknown</option><option>Level access</option>
+          <option>Loading dock</option><option>Roller shutter</option><option>None</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Eaves Height (m)</label><input type="number" id="f-eaves" placeholder="e.g. 6" step="0.5"></div>
+      <div class="form-group"><label>Power Supply</label><input type="text" id="f-power" placeholder="e.g. 3-phase, 100kVA"></div>
+      <div class="form-group full"><label>Other Features</label><input type="text" id="f-features" placeholder="Yard, offices, first floor mezzanine, sprinklers..."></div>
+      <div class="form-group full"><label>Description</label><textarea id="f-desc"></textarea></div>
+
+      <div class="section-divider">🏢 Agent & Listing</div>
+      <div class="form-group"><label>Agent</label><input type="text" id="f-agent" placeholder="Bruton Knowles"></div>
+      <div class="form-group"><label>Date Listed</label><input type="date" id="f-date-listed"></div>
+      <div class="form-group full"><label>Rightmove Commercial Link</label><input type="url" id="f-rm-link"></div>
+      <div class="form-group full"><label>Agent Direct Link</label><input type="url" id="f-agent-link"></div>
+      <div class="form-group full"><label>NovaLoca / EG Link</label><input type="url" id="f-other-link"></div>
+
+      <div class="section-divider">✅ Your Assessment</div>
+      <div class="form-group"><label>Status</label>
+        <select id="f-stat">
+          <option>New</option><option>Enquiry Made</option><option>Viewing Booked</option>
+          <option>Interested</option><option>Offer Made</option><option>Rejected</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Viewing Date</label><input type="date" id="f-view-date"></div>
+      <div class="form-group"><label>Our Rating (1–5)</label>
+        <select id="f-our-rating">
+          <option value="">—</option>
+          <option value="1">1 ⭐</option><option value="2">2 ⭐</option><option value="3">3 ⭐</option>
+          <option value="4">4 ⭐</option><option value="5">5 ⭐</option>
+        </select>
+      </div>
+      <div class="form-group full"><label>Pros</label><textarea id="f-pros" placeholder="One per line"></textarea></div>
+      <div class="form-group full"><label>Cons</label><textarea id="f-cons" placeholder="One per line"></textarea></div>
+      <div class="form-group full"><label>Notes</label><textarea id="f-notes"></textarea></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-delete" id="btn-delete" onclick="deleteProperty()" style="display:none">Delete</button>
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-save" onclick="saveProperty()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let properties = [];
+  let editingId = null;
+
+  function fmt(n, qual) {
+    if (!n) return 'POA';
+    const f = '£' + Number(n).toLocaleString('en-GB');
+    return qual ? f + ' <span class="price-qualifier">' + qual + '</span>' : f;
+  }
+  function fmtSize(sqft) {
+    if (!sqft) return null;
+    const sqm = Math.round(sqft * 0.0929);
+    return `${Number(sqft).toLocaleString()} sq ft <span style="color:#aaa">(${Number(sqm).toLocaleString()} sq m)</span>`;
+  }
+  function stars(n) { return n ? '⭐'.repeat(Number(n)) : ''; }
+  function typeEmoji(t) {
+    const m = {Office:'🏢',Industrial:'🏭',Warehouse:'📦',Retail:'🏪',Land:'🌱','Mixed Use':'🏗️'};
+    return m[t] || '🏠';
+  }
+  function typePlaceholderClass(t) {
+    const m = {Office:'placeholder-office',Industrial:'placeholder-industrial',Warehouse:'placeholder-industrial',Retail:'placeholder-retail',Land:'placeholder-land'};
+    return m[t] || 'placeholder-other';
+  }
+  function typeClass(t) {
+    const m = {Office:'type-office',Industrial:'type-industrial',Warehouse:'type-warehouse',Retail:'type-retail',Land:'type-land','Mixed Use':'type-mixed'};
+    return m[t] || 'type-other';
+  }
+  function statusClass(s) {
+    const m = {'New':'new','Enquiry Made':'enquiry','Viewing Booked':'viewing','Interested':'interested','Offer Made':'offer','Rejected':'rejected'};
+    return 'status-' + (m[s] || 'new');
+  }
+  function tenureClass(t) {
+    if (t === 'For Sale') return 'tenure-sale';
+    if (t && t.includes('Let')) return 'tenure-lease';
+    return '';
+  }
+
+  function getFilters() {
+    return {
+      type: document.getElementById('f-type').value,
+      tenure: document.getElementById('f-tenure').value,
+      area: document.getElementById('f-area').value,
+      minSize: parseInt(document.getElementById('f-min-size').value) || 0,
+      maxPrice: parseInt(document.getElementById('f-price').value),
+      status: document.getElementById('f-status').value,
+      rating: parseInt(document.getElementById('f-rating').value) || 0,
+      sort: document.getElementById('f-sort').value,
+    };
+  }
+
+  function matchesFilters(p, f) {
+    if (f.type && p.propType !== f.type) return false;
+    if (f.tenure && p.tenure !== f.tenure) return false;
+    if (f.area && p.town !== f.area) return false;
+    if (f.minSize && (!p.sizeSqft || p.sizeSqft < f.minSize)) return false;
+    if (f.maxPrice < 5000000 && p.price && p.price > f.maxPrice) return false;
+    if (f.status && p.status !== f.status) return false;
+    if (f.rating && (!p.rating || p.rating < f.rating)) return false;
+    return true;
+  }
+
+  function render() {
+    const f = getFilters();
+    let filtered = properties.filter(p => matchesFilters(p, f));
+    filtered.sort((a,b) => {
+      if (f.sort === 'price-asc')  return (a.price||0)-(b.price||0);
+      if (f.sort === 'price-desc') return (b.price||0)-(a.price||0);
+      if (f.sort === 'size-desc')  return (b.sizeSqft||0)-(a.sizeSqft||0);
+      if (f.sort === 'size-asc')   return (a.sizeSqft||0)-(b.sizeSqft||0);
+      if (f.sort === 'rating-desc') return (b.rating||0)-(a.rating||0);
+      return 0;
+    });
+
+    document.getElementById('stats-text').textContent = `Showing ${filtered.length} of ${properties.length} properties`;
+    document.getElementById('last-updated').textContent = `${properties.length} properties`;
+
+    // Breakdown
+    const types = {};
+    filtered.forEach(p => { types[p.propType||'Other'] = (types[p.propType||'Other']||0)+1; });
+    document.getElementById('breakdown-text').textContent = Object.entries(types).map(([k,v])=>`${k}: ${v}`).join(' · ');
+
+    const grid = document.getElementById('grid');
+    if (filtered.length === 0) {
+      grid.innerHTML = `<div class="empty-state"><div>📦</div><p>${properties.length===0?'No properties yet — click + to add one':'No properties match your filters'}</p></div>`;
+      return;
+    }
+
+    grid.innerHTML = filtered.map(p => `
+      <div class="card" onclick="openModal('${p.id}')">
+        ${p.photos && p.photos.length > 0
+          ? `<img class="card-img" src="${p.photos[0]}" alt="${p.address}" loading="lazy" onerror="this.style.display='none'">`
+          : `<div class="card-img-placeholder ${typePlaceholderClass(p.propType)}">${typeEmoji(p.propType)}</div>`}
+        <div class="card-header">
+          <div class="card-type-row">
+            <span class="type-badge ${typeClass(p.propType)}">${p.propType||'Other'}</span>
+            <span class="tenure-badge ${tenureClass(p.tenure)}">${p.tenure||'—'}</span>
+          </div>
+          <div class="card-address">${p.address||'Address TBC'}</div>
+          <div class="card-location">${[p.town, p.postcode].filter(Boolean).join(' · ')}${p.agent ? ` · <em>${p.agent}</em>` : ''}</div>
+          <div class="card-price">${fmt(p.price, p.priceQual)}</div>
+        </div>
+        <div class="card-body">
+          <div class="specs">
+            ${p.sizeSqft ? `<div class="spec">📐 ${fmtSize(p.sizeSqft)}</div>` : ''}
+            ${p.parking ? `<div class="spec">🚗 <strong>${p.parking}</strong> spaces</div>` : ''}
+            ${p.useClass ? `<div class="spec">📋 ${p.useClass}</div>` : ''}
+            ${p.eaves ? `<div class="spec">↕ ${p.eaves}m eaves</div>` : ''}
+          </div>
+          ${p.features ? `<div class="tags">${p.features.split(',').map(f=>`<span class="tag">${f.trim()}</span>`).join('')}</div>` : ''}
+          ${p.desc ? `<div class="desc">${p.desc}</div>` : ''}
+        </div>
+        <div class="card-footer">
+          <span class="status-badge ${statusClass(p.status)}">${p.status||'New'}</span>
+          <span class="rating">${stars(p.rating)}</span>
+          <div class="links">
+            ${p.rmLink ? `<a href="${p.rmLink}" target="_blank" onclick="event.stopPropagation()">RM</a>` : ''}
+            ${p.agentLink ? `<a href="${p.agentLink}" target="_blank" onclick="event.stopPropagation()">Agent</a>` : ''}
+            ${p.otherLink ? `<a href="${p.otherLink}" target="_blank" onclick="event.stopPropagation()">NL</a>` : ''}
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function openModal(id) {
+    editingId = id || null;
+    const p = id ? properties.find(x => x.id === id) : {};
+    document.getElementById('modal-title').textContent = id ? 'Edit Property' : 'Add Property';
+    document.getElementById('btn-delete').style.display = id ? 'block' : 'none';
+    const flds = {
+      'f-address':p.address||'','f-town':p.town||'','f-postcode':p.postcode||'',
+      'f-prop-type':p.propType||'Office','f-prop-tenure':p.tenure||'For Sale',
+      'f-asking-price':p.price||'','f-price-qual':p.priceQual||'',
+      'f-size-sqft':p.sizeSqft||'','f-size-sqm':p.sizeSqm||'',
+      'f-use-class':p.useClass||'','f-lease-term':p.leaseTerm||'',
+      'f-parking':p.parking||'','f-loading':p.loading||'',
+      'f-eaves':p.eaves||'','f-power':p.power||'',
+      'f-features':p.features||'','f-desc':p.desc||'',
+      'f-agent':p.agent||'','f-date-listed':p.dateListed||'',
+      'f-rm-link':p.rmLink||'','f-agent-link':p.agentLink||'','f-other-link':p.otherLink||'',
+      'f-stat':p.status||'New','f-view-date':p.viewDate||'',
+      'f-our-rating':p.rating||'','f-pros':p.pros||'','f-cons':p.cons||'','f-notes':p.notes||''
+    };
+    for (const [id, val] of Object.entries(flds)) { const el=document.getElementById(id); if(el) el.value=val; }
+    document.getElementById('modal').classList.add('open');
+  }
+
+  function closeModal() { document.getElementById('modal').classList.remove('open'); editingId=null; }
+
+  function saveProperty() {
+    const sqft = parseFloat(document.getElementById('f-size-sqft').value)||null;
+    const p = {
+      id: editingId || Date.now().toString(),
+      address: document.getElementById('f-address').value,
+      town: document.getElementById('f-town').value,
+      postcode: document.getElementById('f-postcode').value,
+      propType: document.getElementById('f-prop-type').value,
+      tenure: document.getElementById('f-prop-tenure').value,
+      price: parseFloat(document.getElementById('f-asking-price').value)||null,
+      priceQual: document.getElementById('f-price-qual').value,
+      sizeSqft: sqft,
+      sizeSqm: sqft ? Math.round(sqft*0.0929) : null,
+      useClass: document.getElementById('f-use-class').value,
+      leaseTerm: document.getElementById('f-lease-term').value,
+      parking: parseInt(document.getElementById('f-parking').value)||null,
+      loading: document.getElementById('f-loading').value,
+      eaves: parseFloat(document.getElementById('f-eaves').value)||null,
+      power: document.getElementById('f-power').value,
+      features: document.getElementById('f-features').value,
+      desc: document.getElementById('f-desc').value,
+      agent: document.getElementById('f-agent').value,
+      dateListed: document.getElementById('f-date-listed').value,
+      rmLink: document.getElementById('f-rm-link').value,
+      agentLink: document.getElementById('f-agent-link').value,
+      otherLink: document.getElementById('f-other-link').value,
+      status: document.getElementById('f-stat').value,
+      viewDate: document.getElementById('f-view-date').value,
+      rating: parseInt(document.getElementById('f-our-rating').value)||null,
+      pros: document.getElementById('f-pros').value,
+      cons: document.getElementById('f-cons').value,
+      notes: document.getElementById('f-notes').value,
+    };
+    if (editingId) { const i=properties.findIndex(x=>x.id===editingId); if(i>=0) properties[i]=p; }
+    else { properties.push(p); }
+    localStorage.setItem('glos-commercial-v1', JSON.stringify(properties.filter(x=>x.source==='local'||!x.source)));
+    closeModal(); render();
+  }
+
+  function deleteProperty() {
+    if (!editingId || !confirm('Delete this property?')) return;
+    properties = properties.filter(x => x.id !== editingId);
+    localStorage.setItem('glos-commercial-v1', JSON.stringify(properties.filter(x=>x.source==='local'||!x.source)));
+    closeModal(); render();
+  }
+
+  function resetFilters() {
+    ['f-type','f-tenure','f-area','f-status'].forEach(id => document.getElementById(id).value='');
+    document.getElementById('f-min-size').value='0';
+    document.getElementById('f-price').value=5000000;
+    document.getElementById('price-display').textContent='Any price';
+    document.getElementById('f-sort').value='default';
+    document.getElementById('f-rating').value='0';
+    render();
+  }
+
+  document.getElementById('f-price').addEventListener('input', function() {
+    const v = parseInt(this.value);
+    document.getElementById('price-display').textContent = v >= 5000000 ? 'Any price' : '£'+v.toLocaleString('en-GB');
+    render();
+  });
+  ['f-type','f-tenure','f-area','f-min-size','f-status','f-rating','f-sort'].forEach(id => {
+    document.getElementById(id).addEventListener('change', render);
+  });
+  document.getElementById('modal').addEventListener('click', function(e) { if(e.target===this) closeModal(); });
+
+  // Auto-calc sq m from sq ft
+  document.getElementById('f-size-sqft').addEventListener('input', function() {
+    const sqm = this.value ? Math.round(parseFloat(this.value)*0.0929) : '';
+    document.getElementById('f-size-sqm').value = sqm;
+  });
+
+  async function init() {
+    try {
+      const resp = await fetch('properties.json?t=' + Date.now());
+      if (resp.ok) {
+        const remote = await resp.json();
+        const local = JSON.parse(localStorage.getItem('glos-commercial-v1') || '[]');
+        const localIds = new Set(local.map(p => p.id));
+        properties = [...remote.filter(p => !localIds.has(p.id)), ...local];
+      }
+    } catch(e) {
+      properties = JSON.parse(localStorage.getItem('glos-commercial-v1') || '[]');
+    }
+    render();
+  }
+  init();
+</script>
+</body>
+</html>
